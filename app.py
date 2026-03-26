@@ -73,31 +73,8 @@ def update_student():
             file.writelines(students)
 
         print("Updated successfully!")
-    except ValueError:
-        print("Please enter a valid number!")
-
-
-def search_student():
-    name_to_search = input("Enter name to search: ").strip().lower()
-
-    try:
-        with open("students.txt", "r") as file:
-            students = file.readlines()
-    except FileNotFoundError:
-        print("No file found!")
-        return
-
-    found = False
-
-    for s in students:
-        name, age, course = s.strip().split(",")
-        if name.lower() == name_to_search:
-            print(f"Found: Name: {name} | Age: {age} | Course: {course}")
-            found = True
-
-    if not found:
-        print("Student not found!")
-
+    except:
+        print("Error updating!")
 
 while True:
     print("\n1.Add 2.View 3.Update 4.Delete 5.Search 6.Exit")
@@ -112,8 +89,6 @@ while True:
     elif ch == "4":
         delete_student()
     elif ch == "5":
-        search_student()
-    elif ch == "6":
         break
     else:
         print("Invalid choice")
