@@ -1,48 +1,71 @@
 def add_student():
-    name = input("Enter name: ")
-    age = input("Enter age: ")
-    course = input("Enter course: ")
+    name = input("Enter name: ").strip()
+    age = input("Enter age: ").strip()
+    course = input("Enter course: ").strip()
+
+    if not name or not age or not course:
+        print("All fields are required!")
+        return
 
     with open("students.txt", "a") as file:
         file.write(f"{name},{age},{course}\n")
 
     print("Student added!")
 
+
 def view_students():
     try:
         with open("students.txt", "r") as file:
             students = file.readlines()
+
             if not students:
                 print("No records found!")
+                return
+
             for i, s in enumerate(students, 1):
                 name, age, course = s.strip().split(",")
-                print(f"{i}. {name} | Age: {age} | Course: {course}")
-    except:
+                print(f"{i}. Name: {name} | Age: {age} | Course: {course}")
+    except FileNotFoundError:
         print("No file found!")
+
 
 def delete_student():
     view_students()
     try:
         num = int(input("Enter number to delete: "))
+
         with open("students.txt", "r") as file:
             students = file.readlines()
+
+        if num < 1 or num > len(students):
+            print("Invalid number!")
+            return
+
         students.pop(num - 1)
+
         with open("students.txt", "w") as file:
             file.writelines(students)
+
         print("Deleted successfully!")
-    except:
-        print("Invalid input!")
+    except ValueError:
+        print("Please enter a valid number!")
+
 
 def update_student():
     view_students()
     try:
         num = int(input("Enter number to update: "))
+
         with open("students.txt", "r") as file:
             students = file.readlines()
 
-        name = input("New name: ")
-        age = input("New age: ")
-        course = input("New course: ")
+        if num < 1 or num > len(students):
+            print("Invalid number!")
+            return
+
+        name = input("New name: ").strip()
+        age = input("New age: ").strip()
+        course = input("New course: ").strip()
 
         students[num - 1] = f"{name},{age},{course}\n"
 
@@ -50,11 +73,34 @@ def update_student():
             file.writelines(students)
 
         print("Updated successfully!")
-    except:
-        print("Error updating!")
+    except ValueError:
+        print("Please enter a valid number!")
+
+
+def search_student():
+    name_to_search = input("Enter name to search: ").strip().lower()
+
+    try:
+        with open("students.txt", "r") as file:
+            students = file.readlines()
+    except FileNotFoundError:
+        print("No file found!")
+        return
+
+    found = False
+
+    for s in students:
+        name, age, course = s.strip().split(",")
+        if name.lower() == name_to_search:
+            print(f"Found: Name: {name} | Age: {age} | Course: {course}")
+            found = True
+
+    if not found:
+        print("Student not found!")
+
 
 while True:
-    print("\n1.Add 2.View 3.Update 4.Delete 5.Exit")
+    print("\n1.Add 2.View 3.Update 4.Delete 5.Search 6.Exit")
     ch = input("Choose: ")
 
     if ch == "1":
@@ -66,6 +112,8 @@ while True:
     elif ch == "4":
         delete_student()
     elif ch == "5":
+        search_student()
+    elif ch == "6":
         break
     else:
         print("Invalid choice")
