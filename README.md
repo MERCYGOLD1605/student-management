@@ -1,6 +1,7 @@
 # 🎓 Student Management System
 
-A simple Python CLI application to manage student records using file handling.
+A simple Python CLI application to manage student records using file handling.  
+This project demonstrates CRUD operations and search functionality.
 
 ---
 
@@ -10,6 +11,7 @@ A simple Python CLI application to manage student records using file handling.
 - Update student information  
 - Delete student  
 - Search student by name  
+- Partial search support  
 
 ---
 
