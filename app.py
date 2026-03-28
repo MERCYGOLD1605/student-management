@@ -11,6 +11,21 @@ def add_student():
         print("Age must be a number!")
         return
 
+    # 🔥 Check for duplicate
+    try:
+        with open("students.txt", "r") as file:
+            students = file.readlines()
+            for s in students:
+                existing_name, existing_age, existing_course = s.strip().split(",")
+
+                if (name.lower() == existing_name.lower() and
+                    age == existing_age and
+                    course.lower() == existing_course.lower()):
+                    print("Student already exists! Duplicate not allowed.")
+                    return
+    except FileNotFoundError:
+        pass  # file doesn't exist yet, it's okay
+
     with open("students.txt", "a") as file:
         file.write(f"{name},{age},{course}\n")
 
