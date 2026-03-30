@@ -41,9 +41,17 @@ def view_students():
                 print("No records found!")
                 return
 
+            print("\n----- Student Records -----")
+
             for i, s in enumerate(students, 1):
                 name, age, course = s.strip().split(",")
-                print(f"{i}. Name: {name} | Age: {age} | Course: {course}")
+                
+                print(f"\nStudent {i}")
+                print(f"Name   : {name}")
+                print(f"Age    : {age}")
+                print(f"Course : {course}")
+                print("---------------------------")
+
     except FileNotFoundError:
         print("No file found!")
 
@@ -121,7 +129,11 @@ def search_student():
 
         # 🔥 Partial search (Day 3 feature)
         if name_to_search in name.lower():
-            print(f"Found: Name: {name} | Age: {age} | Course: {course}")
+            print(f"\nFound Student")
+            print(f"Name   : {name}")
+            print(f"Age    : {age}")
+            print(f"Course :  {course}")
+            print("---------------------------")
             found = True
 
     if not found:
