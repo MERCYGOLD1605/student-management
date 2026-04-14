@@ -12,6 +12,9 @@ This project demonstrates CRUD operations and search functionality.
 - Delete student  
 - Search student by name  
 - Partial search support  
+- Prevent duplicate student entries
+- Improved user interface (clean output display)
+
 
 ---
 
