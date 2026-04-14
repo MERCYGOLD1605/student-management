@@ -138,6 +138,7 @@ def search_student():
 
     if not found:
         print("No matching student found!")
+
 def sort_students():
     try:
         with open("students.txt", "r") as file:
@@ -171,7 +172,24 @@ def sort_students():
     except:
         print("Error sorting students!")
 
+def export_to_csv():
+    try:
+        with open("students.txt", "r") as file:
+            students = file.readlines()
 
+        if not students:
+            print("No data to export!")
+            return
+
+        with open("students.csv", "w") as file:
+            file.write("Name,Age,Course\n")
+            for s in students:
+                file.write(s)
+
+        print("Exported to students.csv successfully!")
+
+    except:
+        print("Error exporting!")
 
 while True:
     print("\n1.Add 2.View 3.Update 4.Delete 5.Search 6.Sort 7.Exit")
