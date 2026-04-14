@@ -138,10 +138,43 @@ def search_student():
 
     if not found:
         print("No matching student found!")
+def sort_students():
+    try:
+        with open("students.txt", "r") as file:
+            students = file.readlines()
+
+        if not students:
+            print("No records to sort!")
+            return
+
+        print("1. Sort by Name")
+        print("2. Sort by Age")
+        choice = input("Choose: ")
+
+        data = []
+        for s in students:
+            name, age, course = s.strip().split(",")
+            data.append([name, int(age), course])
+
+        if choice == "1":
+            data.sort(key=lambda x: x[0].lower())
+        elif choice == "2":
+            data.sort(key=lambda x: x[1])
+        else:
+            print("Invalid choice!")
+            return
+
+        print("\nSorted Students:")
+        for i, (name, age, course) in enumerate(data, 1):
+            print(f"{i}. {name} | Age: {age} | Course: {course}")
+
+    except:
+        print("Error sorting students!")
+
 
 
 while True:
-    print("\n1.Add 2.View 3.Update 4.Delete 5.Search 6.Exit")
+    print("\n1.Add 2.View 3.Update 4.Delete 5.Search 6.Sort 7.Exit")
     ch = input("Choose: ")
 
     if ch == "1":
@@ -155,6 +188,9 @@ while True:
     elif ch == "5":
         search_student()
     elif ch == "6":
+         sort_students()
+    elif ch == "7":
         break
+        
     else:
-        print("Invalid choice")
+            print("Invalid choice")
