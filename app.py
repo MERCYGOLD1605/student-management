@@ -11,21 +11,6 @@ def add_student():
         print("Age must be a number!")
         return
 
-    # 🔥 Check for duplicate
-    try:
-        with open("students.txt", "r") as file:
-            students = file.readlines()
-            for s in students:
-                existing_name, existing_age, existing_course = s.strip().split(",")
-
-                if (name.lower() == existing_name.lower() and
-                    age == existing_age and
-                    course.lower() == existing_course.lower()):
-                    print("Student already exists! Duplicate not allowed.")
-                    return
-    except FileNotFoundError:
-        pass  # file doesn't exist yet, it's okay
-
     with open("students.txt", "a") as file:
         file.write(f"{name},{age},{course}\n")
 
@@ -113,7 +98,7 @@ def update_student():
 
 
 def search_student():
-    name_to_search = input("Enter name to search: ").strip().lower()
+    query = input("Enter name to search: ").strip().lower()
 
     try:
         with open("students.txt", "r") as file:
@@ -122,18 +107,20 @@ def search_student():
         print("No file found!")
         return
 
+    if not students:
+        print("No records available!")
+        return
+
     found = False
 
     for s in students:
-        name, age, course = s.strip().split(",")
+        try:
+            name, age, course = s.strip().split(",")
+        except ValueError:
+            continue  # skip bad lines safely
 
-        # 🔥 Partial search (Day 3 feature)
-        if name_to_search in name.lower():
-            print(f"\nFound Student")
-            print(f"Name   : {name}")
-            print(f"Age    : {age}")
-            print(f"Course :  {course}")
-            print("---------------------------")
+        if query in name.lower():   # 🔥 partial match
+            print(f"Name: {name} | Age: {age} | Course: {course}")
             found = True
 
     if not found:
@@ -190,9 +177,22 @@ def export_to_csv():
 
     except:
         print("Error exporting!")
+def count_students():
+    try:
+        with open("students.txt", "r") as file:
+            students = file.readlines()
+
+        if not students:
+            print("No students found!")
+            return
+
+        print(f"Total students: {len(students)}")
+
+    except FileNotFoundError:
+        print("No file found!")
 
 while True:
-    print("\n1.Add 2.View 3.Update 4.Delete 5.Search 6.Sort 7.Exit")
+    print("\n1.Add 2.View 3.Update 4.Delete 5.Search 6.Sort 7.Export to CSV 8.Count Students 9.Exit")
     ch = input("Choose: ")
 
     if ch == "1":
@@ -208,7 +208,11 @@ while True:
     elif ch == "6":
          sort_students()
     elif ch == "7":
+        export_to_csv()
+    elif ch == "8":
+        count_students()
+    elif ch == "9": 
         break
         
     else:
-            print("Invalid choice")
+            print("Invalid choice") 
