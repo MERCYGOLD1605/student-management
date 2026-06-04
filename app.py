@@ -1,3 +1,24 @@
+import csv
+from database import get_connection
+
+
+def create_database():
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS students (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        age INTEGER NOT NULL,
+        course TEXT NOT NULL
+    )
+    """)
+
+    conn.commit()
+    conn.close()
+
+
 def add_student():
     name = input("Enter name: ").strip()
     age = input("Enter age: ").strip()
@@ -11,69 +32,73 @@ def add_student():
         print("Age must be a number!")
         return
 
-    with open("students.txt", "a") as file:
-        file.write(f"{name},{age},{course}\n")
+    conn = get_connection()
+    cursor = conn.cursor()
 
-    print("Student added!")
+    cursor.execute(
+        "INSERT INTO students (name, age, course) VALUES (?, ?, ?)",
+        (name, int(age), course)
+    )
+
+    conn.commit()
+    conn.close()
+
+    print("Student added successfully!")
 
 
 def view_students():
-    try:
-        with open("students.txt", "r") as file:
-            students = file.readlines()
+    conn = get_connection()
+    cursor = conn.cursor()
 
-            if not students:
-                print("No records found!")
-                return
+    cursor.execute("SELECT * FROM students")
+    students = cursor.fetchall()
 
-            print("\n----- Student Records -----")
+    conn.close()
 
-            for i, s in enumerate(students, 1):
-                name, age, course = s.strip().split(",")
-                
-                print(f"\nStudent {i}")
-                print(f"Name   : {name}")
-                print(f"Age    : {age}")
-                print(f"Course : {course}")
-                print("---------------------------")
+    if not students:
+        print("No records found!")
+        return
 
-    except FileNotFoundError:
-        print("No file found!")
+    print("\n----- Student Records -----")
+
+    for student in students:
+        student_id, name, age, course = student
+
+        print(f"\nID     : {student_id}")
+        print(f"Name   : {name}")
+        print(f"Age    : {age}")
+        print(f"Course : {course}")
+        print("---------------------------")
 
 
 def delete_student():
     view_students()
+
     try:
-        num = int(input("Enter number to delete: "))
+        student_id = int(input("Enter Student ID to delete: "))
 
-        with open("students.txt", "r") as file:
-            students = file.readlines()
+        conn = get_connection()
+        cursor = conn.cursor()
 
-        if num < 1 or num > len(students):
-            print("Invalid number!")
-            return
+        cursor.execute("DELETE FROM students WHERE id = ?", (student_id,))
 
-        students.pop(num - 1)
+        if cursor.rowcount == 0:
+            print("Student not found!")
+        else:
+            print("Deleted successfully!")
 
-        with open("students.txt", "w") as file:
-            file.writelines(students)
+        conn.commit()
+        conn.close()
 
-        print("Deleted successfully!")
     except ValueError:
-        print("Please enter a valid number!")
+        print("Please enter a valid ID!")
 
 
 def update_student():
     view_students()
+
     try:
-        num = int(input("Enter number to update: "))
-
-        with open("students.txt", "r") as file:
-            students = file.readlines()
-
-        if num < 1 or num > len(students):
-            print("Invalid number!")
-            return
+        student_id = int(input("Enter Student ID to update: "))
 
         name = input("New name: ").strip()
         age = input("New age: ").strip()
@@ -87,132 +112,152 @@ def update_student():
             print("Age must be a number!")
             return
 
-        students[num - 1] = f"{name},{age},{course}\n"
+        conn = get_connection()
+        cursor = conn.cursor()
 
-        with open("students.txt", "w") as file:
-            file.writelines(students)
+        cursor.execute("""
+            UPDATE students
+            SET name=?, age=?, course=?
+            WHERE id=?
+        """, (name, int(age), course, student_id))
 
-        print("Updated successfully!")
+        if cursor.rowcount == 0:
+            print("Student not found!")
+        else:
+            print("Updated successfully!")
+
+        conn.commit()
+        conn.close()
+
     except ValueError:
-        print("Please enter a valid number!")
+        print("Please enter a valid ID!")
 
 
 def search_student():
     query = input("Enter name to search: ").strip().lower()
 
-    try:
-        with open("students.txt", "r") as file:
-            students = file.readlines()
-    except FileNotFoundError:
-        print("No file found!")
-        return
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        "SELECT * FROM students WHERE LOWER(name) LIKE ?",
+        ('%' + query + '%',)
+    )
+
+    students = cursor.fetchall()
+
+    conn.close()
 
     if not students:
-        print("No records available!")
+        print("No matching student found!")
         return
 
-    found = False
+    print("\nMatching Students:")
+    for student in students:
+        student_id, name, age, course = student
+        print(f"ID: {student_id} | Name: {name} | Age: {age} | Course: {course}")
 
-    for s in students:
-        try:
-            name, age, course = s.strip().split(",")
-        except ValueError:
-            continue  # skip bad lines safely
-
-        if query in name.lower():   # 🔥 partial match
-            print(f"Name: {name} | Age: {age} | Course: {course}")
-            found = True
-
-    if not found:
-        print("No matching student found!")
 
 def sort_students():
-    try:
-        with open("students.txt", "r") as file:
-            students = file.readlines()
+    print("1. Sort by Name")
+    print("2. Sort by Age")
 
-        if not students:
-            print("No records to sort!")
-            return
+    choice = input("Choose: ")
 
-        print("1. Sort by Name")
-        print("2. Sort by Age")
-        choice = input("Choose: ")
+    conn = get_connection()
+    cursor = conn.cursor()
 
-        data = []
-        for s in students:
-            name, age, course = s.strip().split(",")
-            data.append([name, int(age), course])
+    if choice == "1":
+        cursor.execute("SELECT * FROM students ORDER BY name ASC")
+    elif choice == "2":
+        cursor.execute("SELECT * FROM students ORDER BY age ASC")
+    else:
+        print("Invalid choice!")
+        conn.close()
+        return
 
-        if choice == "1":
-            data.sort(key=lambda x: x[0].lower())
-        elif choice == "2":
-            data.sort(key=lambda x: x[1])
-        else:
-            print("Invalid choice!")
-            return
+    students = cursor.fetchall()
+    conn.close()
 
-        print("\nSorted Students:")
-        for i, (name, age, course) in enumerate(data, 1):
-            print(f"{i}. {name} | Age: {age} | Course: {course}")
+    print("\nSorted Students:")
 
-    except:
-        print("Error sorting students!")
+    for student in students:
+        student_id, name, age, course = student
+        print(f"ID: {student_id} | {name} | Age: {age} | Course: {course}")
+
 
 def export_to_csv():
-    try:
-        with open("students.txt", "r") as file:
-            students = file.readlines()
+    conn = get_connection()
+    cursor = conn.cursor()
 
-        if not students:
-            print("No data to export!")
-            return
+    cursor.execute("SELECT name, age, course FROM students")
+    students = cursor.fetchall()
 
-        with open("students.csv", "w") as file:
-            file.write("Name,Age,Course\n")
-            for s in students:
-                file.write(s)
+    conn.close()
 
-        print("Exported to students.csv successfully!")
+    if not students:
+        print("No data to export!")
+        return
 
-    except:
-        print("Error exporting!")
+    with open("students.csv", "w", newline="") as file:
+        writer = csv.writer(file)
+
+        writer.writerow(["Name", "Age", "Course"])
+
+        for student in students:
+            writer.writerow(student)
+
+    print("Exported to students.csv successfully!")
+
+
 def count_students():
-    try:
-        with open("students.txt", "r") as file:
-            students = file.readlines()
+    conn = get_connection()
+    cursor = conn.cursor()
 
-        if not students:
-            print("No students found!")
-            return
+    cursor.execute("SELECT COUNT(*) FROM students")
+    count = cursor.fetchone()[0]
 
-        print(f"Total students: {len(students)}")
+    conn.close()
 
-    except FileNotFoundError:
-        print("No file found!")
+    print(f"Total students: {count}")
+
+
+# Create database when application starts
+create_database()
+
 
 while True:
     print("\n1.Add 2.View 3.Update 4.Delete 5.Search 6.Sort 7.Export to CSV 8.Count Students 9.Exit")
+
     ch = input("Choose: ")
 
     if ch == "1":
         add_student()
+
     elif ch == "2":
         view_students()
+
     elif ch == "3":
         update_student()
+
     elif ch == "4":
         delete_student()
+
     elif ch == "5":
         search_student()
+
     elif ch == "6":
-         sort_students()
+        sort_students()
+
     elif ch == "7":
         export_to_csv()
+
     elif ch == "8":
         count_students()
-    elif ch == "9": 
+
+    elif ch == "9":
+        print("Goodbye!")
         break
-        
+
     else:
-            print("Invalid choice") 
+        print("Invalid choice!")
