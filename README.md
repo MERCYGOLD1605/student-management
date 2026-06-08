@@ -1,26 +1,77 @@
 # 🎓 Student Management System
 
-A simple Python CLI application to manage student records using file handling.  
-This project demonstrates CRUD operations and search functionality.
+A command-line Student Management System built with Python and SQLite that allows users to manage student records efficiently through CRUD operations, reporting, analytics, and data export features.
 
 ---
 
 ## 🚀 Features
-- Add student details  
-- View all students  
-- Update student information  
-- Delete student  
-- Search student by name  
-- Partial search support  
-- Prevent duplicate student entries
-- Improved user interface (clean output display)
 
+### Student Management
+
+* Add Student
+* View Students
+* Update Student Information
+* Delete Student Records
+
+### Search & Sorting
+
+* Search Student by Name
+* Search Student by ID
+* Sort Students by Name
+* Sort Students by Age
+
+### Reports & Analytics
+
+* Total Student Count
+* Course Statistics
+* Student Analytics
+
+  * Average Age
+  * Youngest Student
+  * Oldest Student
+
+### Data Export
+
+* Export Student Records to CSV
 
 ---
 
-## 🛠 Tech Stack
-- Python  
-- File Handling  
+## 🛠 Technologies Used
+
+* Python
+* SQLite
+* SQL Queries
+* CSV
+* Git & GitHub
+
+---
+
+## 📂 Project Structure
+
+```text
+student-management-system/
+│
+├── app.py
+├── database.py
+├── students.db
+├── students.csv
+└── README.md
+```
+
+---
+
+## 📊 SQL Concepts Implemented
+
+* SELECT
+* INSERT
+* UPDATE
+* DELETE
+* WHERE
+* COUNT()
+* AVG()
+* MIN()
+* MAX()
+* GROUP BY
 
 ---
 
@@ -28,3 +79,17 @@ This project demonstrates CRUD operations and search functionality.
 
 ```bash
 python app.py
+```
+
+---
+
+## 🎯 Future Improvements
+
+* Add Email & Phone Number Fields
+* User Authentication
+* Flask Web Interface
+* Student Dashboard
+* PDF Report Generation
+* Attendance Tracking
+
+---
