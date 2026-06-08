@@ -221,13 +221,94 @@ def count_students():
 
     print(f"Total students: {count}")
 
+def course_statistics():
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT course, COUNT(*)
+        FROM students
+        GROUP BY course
+    """)
+
+    results = cursor.fetchall()
+
+    if not results:
+        print("No student records found!")
+        conn.close()
+        return
+
+    print("\n----- Course Statistics -----")
+
+    for course, count in results:
+        print(f"{course} : {count} student(s)")
+
+    conn.close()
+def search_student_by_id():
+    try:
+        student_id = int(input("Enter Student ID: "))
+
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        cursor.execute(
+            "SELECT * FROM students WHERE id = ?",
+            (student_id,)
+        )
+
+        student = cursor.fetchone()
+
+        conn.close()
+
+        if student:
+            student_id, name, age, course = student
+
+            print("\n----- Student Found -----")
+            print(f"ID     : {student_id}")
+            print(f"Name   : {name}")
+            print(f"Age    : {age}")
+            print(f"Course : {course}")
+
+        else:
+            print("Student not found!")
+
+    except ValueError:
+        print("Please enter a valid ID!")
+def student_analytics():
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT
+            COUNT(*),
+            AVG(age),
+            MIN(age),
+            MAX(age)
+        FROM students
+    """)
+
+    result = cursor.fetchone()
+    conn.close()
+
+    total, average, youngest, oldest = result
+
+    if total == 0:
+        print("No student records found!")
+        return
+
+    print("\n----- Student Analytics -----")
+    print(f"Total Students : {total}")
+    print(f"Average Age    : {average:.2f}")
+    print(f"Youngest Age   : {youngest}")
+    print(f"Oldest Age     : {oldest}")
+
 
 # Create database when application starts
 create_database()
 
 
 while True:
-    print("\n1.Add 2.View 3.Update 4.Delete 5.Search 6.Sort 7.Export to CSV 8.Count Students 9.Exit")
+    print("\n1.Add 2.View 3.Update 4.Delete 5.Search 6.Sort 7.Export to CSV 8.Count Students 9.Exit 10.Course Stats 11.Search by ID 12.Student Analytics")
 
     ch = input("Choose: ")
 
@@ -256,8 +337,13 @@ while True:
         count_students()
 
     elif ch == "9":
-        print("Goodbye!")
         break
 
+    elif ch == "10":
+         course_statistics()
+    elif ch == "11":
+        search_student_by_id()  
+    elif ch == "12":
+        student_analytics() 
     else:
         print("Invalid choice!")
