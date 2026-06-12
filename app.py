@@ -11,20 +11,23 @@ def create_database():
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
         age INTEGER NOT NULL,
-        course TEXT NOT NULL
+        course TEXT NOT NULL,
+        email TEXT NOT NULL,
+        phone TEXT NOT NULL
     )
     """)
 
     conn.commit()
     conn.close()
 
-
 def add_student():
     name = input("Enter name: ").strip()
     age = input("Enter age: ").strip()
     course = input("Enter course: ").strip()
+    email = input("Enter email: ").strip()
+    phone = input("Enter phone number: ").strip()
 
-    if not name or not age or not course:
+    if not name or not age or not course or not email or not phone:
         print("All fields are required!")
         return
 
@@ -36,8 +39,12 @@ def add_student():
     cursor = conn.cursor()
 
     cursor.execute(
-        "INSERT INTO students (name, age, course) VALUES (?, ?, ?)",
-        (name, int(age), course)
+        """
+        INSERT INTO students
+        (name, age, course, email, phone)
+        VALUES (?, ?, ?, ?, ?)
+        """,
+        (name, int(age), course, email, phone)
     )
 
     conn.commit()
@@ -62,12 +69,14 @@ def view_students():
     print("\n----- Student Records -----")
 
     for student in students:
-        student_id, name, age, course = student
+        student_id, name, age, course, email, phone = student
 
         print(f"\nID     : {student_id}")
         print(f"Name   : {name}")
         print(f"Age    : {age}")
         print(f"Course : {course}")
+        print(f"Email  : {email}")
+        print(f"Phone  : {phone}")
         print("---------------------------")
 
 
@@ -103,8 +112,10 @@ def update_student():
         name = input("New name: ").strip()
         age = input("New age: ").strip()
         course = input("New course: ").strip()
+        email = input("New email: ").strip()
+        phone = input("New phone number: ").strip()
 
-        if not name or not age or not course:
+        if not name or not age or not course or not email or not phone:
             print("All fields are required!")
             return
 
@@ -117,9 +128,9 @@ def update_student():
 
         cursor.execute("""
             UPDATE students
-            SET name=?, age=?, course=?
+            SET name=?, age=?, course=?, email=?, phone=?
             WHERE id=?
-        """, (name, int(age), course, student_id))
+        """, (name, int(age), course, email, phone, student_id))
 
         if cursor.rowcount == 0:
             print("Student not found!")
@@ -153,9 +164,18 @@ def search_student():
         return
 
     print("\nMatching Students:")
+
     for student in students:
-        student_id, name, age, course = student
-        print(f"ID: {student_id} | Name: {name} | Age: {age} | Course: {course}")
+        student_id, name, age, course, email, phone = student
+
+        print(
+            f"ID: {student_id} | "
+            f"Name: {name} | "
+            f"Age: {age} | "
+            f"Course: {course} | "
+            f"Email: {email} | "
+            f"Phone: {phone}"
+        )
 
 
 def sort_students():
@@ -182,17 +202,32 @@ def sort_students():
     print("\nSorted Students:")
 
     for student in students:
-        student_id, name, age, course = student
-        print(f"ID: {student_id} | {name} | Age: {age} | Course: {course}")
+        student_id, name, age, course, email, phone = student
 
+        print(
+            f"ID: {student_id} | "
+            f"{name} | "
+            f"Age: {age} | "
+            f"Course: {course} | "
+            f"Email: {email} | "
+            f"Phone: {phone}"
+        )
 
 def export_to_csv():
     conn = get_connection()
     cursor = conn.cursor()
 
-    cursor.execute("SELECT name, age, course FROM students")
-    students = cursor.fetchall()
+    cursor.execute("""
+        SELECT
+        name,
+        age,
+        course,
+        email,
+        phone
+        FROM students
+    """)
 
+    students = cursor.fetchall()
     conn.close()
 
     if not students:
@@ -202,10 +237,15 @@ def export_to_csv():
     with open("students.csv", "w", newline="") as file:
         writer = csv.writer(file)
 
-        writer.writerow(["Name", "Age", "Course"])
+        writer.writerow([
+            "Name",
+            "Age",
+            "Course",
+            "Email",
+            "Phone"
+        ])
 
-        for student in students:
-            writer.writerow(student)
+        writer.writerows(students)
 
     print("Exported to students.csv successfully!")
 
@@ -244,6 +284,8 @@ def course_statistics():
         print(f"{course} : {count} student(s)")
 
     conn.close()
+
+
 def search_student_by_id():
     try:
         student_id = int(input("Enter Student ID: "))
@@ -261,19 +303,22 @@ def search_student_by_id():
         conn.close()
 
         if student:
-            student_id, name, age, course = student
+            student_id, name, age, course, email, phone = student
 
             print("\n----- Student Found -----")
             print(f"ID     : {student_id}")
             print(f"Name   : {name}")
             print(f"Age    : {age}")
             print(f"Course : {course}")
+            print(f"Email  : {email}")
+            print(f"Phone  : {phone}")
 
         else:
             print("Student not found!")
 
     except ValueError:
         print("Please enter a valid ID!")
+
 def student_analytics():
     conn = get_connection()
     cursor = conn.cursor()
