@@ -1,4 +1,5 @@
 import csv
+import re
 from database import get_connection
 
 
@@ -20,6 +21,14 @@ def create_database():
     conn.commit()
     conn.close()
 
+def is_valid_email(email):
+    pattern = r'^[\w\.-]+@[\w\.-]+\.\w+$'
+    return re.match(pattern, email)
+
+
+def is_valid_phone(phone):
+    return phone.isdigit() and len(phone) == 10
+
 def add_student():
     name = input("Enter name: ").strip()
     age = input("Enter age: ").strip()
@@ -33,6 +42,14 @@ def add_student():
 
     if not age.isdigit():
         print("Age must be a number!")
+        return
+    
+    if not is_valid_email(email):
+         print("Invalid email format!")
+         return  
+
+    if not is_valid_phone(phone):
+        print("Phone number must contain exactly 10 digits!")
         return
 
     conn = get_connection()
@@ -51,6 +68,7 @@ def add_student():
     conn.close()
 
     print("Student added successfully!")
+
 
 
 def view_students():
@@ -121,6 +139,13 @@ def update_student():
 
         if not age.isdigit():
             print("Age must be a number!")
+            return
+        if not is_valid_email(email):
+            print("Invalid email format!")
+            return
+
+        if not is_valid_phone(phone):
+            print("Phone number must contain exactly 10 digits!")
             return
 
         conn = get_connection()

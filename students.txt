@@ -1,6 +1,0 @@
-Mercy,21,cse
-Mercy,21,CS
-Beula,18,IT
-Shekar,22,cse
-arthi,21,it
-Raja,31,IT
